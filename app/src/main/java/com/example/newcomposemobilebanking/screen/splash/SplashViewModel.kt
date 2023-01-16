@@ -1,4 +1,4 @@
-package uz.gita.composemobilebanking.screen.splash
+package com.example.newcomposemobilebanking.screen.splash
 
 /*
  * Arzigul Nazarbaeva
@@ -7,4 +7,5 @@ package uz.gita.composemobilebanking.screen.splash
 
 
 interface SplashViewModel {
+
 }

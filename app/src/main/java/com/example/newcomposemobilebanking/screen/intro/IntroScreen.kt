@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,8 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.hilt.getViewModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import com.example.newcomposemobilebanking.screen.splash.GitaIcon
+import com.example.newcomposemobilebanking.screen.intro.IntroContract.*
+import com.example.newcomposemobilebanking.screen.signIn.SignInScreen
 
 
 /*
@@ -33,14 +39,20 @@ class IntroScreen : AndroidScreen() {
     @Composable
     override fun Content() {
         NewComposeMobileBankingTheme {
-            IntroScreenContent()
+            val viewModel: IntroViewModelImpl = getViewModel()
+            val uiState = viewModel.uiState.collectAsState().value
+            IntroScreenContent(uiState, viewModel::onEventDispatcher)
         }
     }
 
 }
 
 @Composable
-fun IntroScreenContent() {
+fun IntroScreenContent(
+    uiState: UiState,
+    eventDispatcher: (Intent) -> Unit
+) {
+    val navigator = LocalNavigator.currentOrThrow
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -84,7 +96,10 @@ fun IntroScreenContent() {
         }
 
         Button(
-            onClick = { /*TODO*/ },
+            onClick = {
+                eventDispatcher(Intent.FirstLaunch(false))
+                navigator.replace(SignInScreen())
+            },
             modifier = Modifier
                 .padding(start = 15.dp, end = 15.dp, bottom = 20.dp)
                 .fillMaxWidth()
@@ -95,6 +110,10 @@ fun IntroScreenContent() {
         ) {
             Text(text = "Next")
         }
+
+        if (!uiState.next) {
+            navigator.replace(SignInScreen())
+        }
     }
 }
 
@@ -102,6 +121,6 @@ fun IntroScreenContent() {
 @Composable
 fun IntroScreenPreview() {
     NewComposeMobileBankingTheme {
-        IntroScreenContent()
+        IntroScreenContent(UiState(false)) {}
     }
 }
