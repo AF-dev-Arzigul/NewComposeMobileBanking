@@ -1,6 +1,7 @@
 package com.example.newcomposemobilebanking.screen.signIn
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -18,9 +20,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.hilt.getViewModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.newcomposemobilebanking.R
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import com.example.newcomposemobilebanking.util.MaskVisualTransformation
+import com.example.newcomposemobilebanking.screen.signIn.SignInContract.*
+import com.example.newcomposemobilebanking.screen.signInVerify.SignInVerifyScreen
 
 /*
  * Arzigul Nazarbaeva
@@ -33,17 +40,23 @@ class SignInScreen : AndroidScreen() {
     @Composable
     override fun Content() {
         NewComposeMobileBankingTheme {
-            SignInScreenContent()
+            val viewModel: SignInViewModelImpl = getViewModel()
+            val uiState = viewModel.uiState.collectAsState().value
+            SignInScreenContent(uiState, viewModel::onEventDispatcher)
         }
     }
 
 }
 
 @Composable
-fun SignInScreenContent() {
+fun SignInScreenContent(
+    uiSate: UiState,
+    onEventDispatcher: (Intent) -> Unit
+) {
+    val navigator = LocalNavigator.currentOrThrow
     Box(modifier = Modifier.fillMaxSize()) {
-        var phoneCheck by remember { mutableStateOf(false) }
-        var passwordCheck by remember { mutableStateOf(false) }
+        var phoneCheck by remember { mutableStateOf("") }
+        var passwordCheck by remember { mutableStateOf("") }
 
         Column {
             Text(
@@ -84,16 +97,24 @@ fun SignInScreenContent() {
         }
 
         Button(
-            onClick = { /*TODO*/ },
+            onClick = {
+                onEventDispatcher(Intent.CheckUser("+998$phoneCheck", passwordCheck))
+            },
             modifier = Modifier
                 .padding(vertical = 20.dp, horizontal = 20.dp)
                 .fillMaxWidth()
                 .height(48.dp)
                 .align(Alignment.BottomEnd),
             shape = RoundedCornerShape(10.dp),
-            enabled = phoneCheck && passwordCheck
+            enabled = phoneCheck.isNotEmpty() && passwordCheck.isNotEmpty()
         ) {
             Text(text = "Sign In")
+        }
+
+        if (uiSate.openVerifyScreen) {
+            navigator.push(SignInVerifyScreen("+998$phoneCheck"))
+        } else {
+            Log.d("qqqqq", "Something went wrong")
         }
 
     }
@@ -101,8 +122,8 @@ fun SignInScreenContent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun phoneEditText(): Boolean {
-    val PHONE_MASK = " (##) - ### - ## - ##"
+fun phoneEditText(): String {
+    val phoneMask = " (##) - ### - ## - ##"
     var phone by remember { mutableStateOf("") }
     Box {
         OutlinedTextField(
@@ -114,6 +135,7 @@ fun phoneEditText(): Boolean {
             leadingIcon = {
                 Text(text = "+998")
             },
+            textStyle = TextStyle(color = Color.Black),
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp)
                 .fillMaxWidth()
@@ -127,15 +149,15 @@ fun phoneEditText(): Boolean {
             ),
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
-            visualTransformation = MaskVisualTransformation(PHONE_MASK)
+            visualTransformation = MaskVisualTransformation(phoneMask)
         )
     }
-    return phone.isNotEmpty()
+    return phone
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun passwordEditText(): Boolean {
+fun passwordEditText(): String {
     var password by remember { mutableStateOf("") }
     var toggle by remember { mutableStateOf(false) }
     Box {
@@ -170,13 +192,13 @@ fun passwordEditText(): Boolean {
         )
 
     }
-    return password.isNotEmpty()
+    return password
 }
 
 @Preview
 @Composable
 fun SignInPreview() {
     NewComposeMobileBankingTheme {
-        SignInScreenContent()
+        SignInScreenContent(UiState("", false)) {}
     }
 }

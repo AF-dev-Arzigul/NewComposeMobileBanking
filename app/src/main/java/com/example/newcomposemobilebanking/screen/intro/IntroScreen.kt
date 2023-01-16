@@ -98,7 +98,9 @@ fun IntroScreenContent(
         Button(
             onClick = {
                 eventDispatcher(Intent.FirstLaunch(false))
-                navigator.replace(SignInScreen())
+                if (uiState.next) {
+                    navigator.replace(SignInScreen())
+                }
             },
             modifier = Modifier
                 .padding(start = 15.dp, end = 15.dp, bottom = 20.dp)
@@ -109,10 +111,6 @@ fun IntroScreenContent(
             enabled = acceptPrivacy.value
         ) {
             Text(text = "Next")
-        }
-
-        if (!uiState.next) {
-            navigator.replace(SignInScreen())
         }
     }
 }

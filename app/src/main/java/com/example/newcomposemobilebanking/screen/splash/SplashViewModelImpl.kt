@@ -1,7 +1,6 @@
 package com.example.newcomposemobilebanking.screen.splash
 
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.newcomposemobilebanking.model.repository.AuthRepository
 import com.example.newcomposemobilebanking.screen.splash.SplashContract.*
@@ -17,12 +16,8 @@ class SplashViewModelImpl @Inject constructor(
     override val uiState = MutableStateFlow(UiState(isFirstLaunch = true, isSignedIn = true))
 
     init {
-        if (authRepository.isFirstLaunch()) {
-            Log.d("qqqqq", "vm ${authRepository.isFirstLaunch()}")
-            reduce { it.copy(isFirstLaunch = authRepository.isFirstLaunch()) }
-        }else if (authRepository.isSignedIn()) {
-            reduce { it.copy(isSignedIn = authRepository.isSignedIn()) }
-        }
+        reduce { it.copy(isFirstLaunch = authRepository.isFirstLaunch()) }
+        reduce { it.copy(isSignedIn = authRepository.isSignedIn()) }
     }
 
     override fun onEventDispatcher(intent: Intent) {

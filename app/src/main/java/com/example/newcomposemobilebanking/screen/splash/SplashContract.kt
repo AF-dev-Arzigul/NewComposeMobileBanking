@@ -12,7 +12,6 @@ interface SplashContract {
 
     interface SplashView {
         val uiState: StateFlow<UiState>
-
         fun onEventDispatcher(intent: Intent)
     }
 

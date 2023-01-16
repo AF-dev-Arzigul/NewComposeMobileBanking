@@ -25,6 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.hilt.getViewModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.newcomposemobilebanking.screen.home.HomeScreen
+import com.example.newcomposemobilebanking.screen.signInVerify.SignInVerifyContract.*
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import kotlinx.coroutines.delay
 import com.example.newcomposemobilebanking.util.TimerContent
@@ -36,19 +41,25 @@ import com.example.newcomposemobilebanking.util.TimerContent
 */
 
 
-class SignInVerifyScreen/*(private val phoneNumber:String)*/ : AndroidScreen() {
+class SignInVerifyScreen(private val phoneNumber: String) : AndroidScreen() {
 
     @Composable
     override fun Content() {
         NewComposeMobileBankingTheme {
-            SignInVerifyScreenContent(/*phoneNumber*/)
+            val viewModel: SignInVerifyViewModelImpl = getViewModel()
+            val uiState = viewModel.uiState.collectAsState().value
+            SignInVerifyScreenContent(phoneNumber, uiState, viewModel::onEventDispatcher)
         }
     }
 
 }
 
 @Composable
-fun SignInVerifyScreenContent(/*phoneNumber: String*/) {
+fun SignInVerifyScreenContent(
+    phoneNumber: String,
+    uiState: UiState,
+    onEventDispatcher: (Intent) -> Unit
+) {
     var password by remember {
         mutableStateOf("")
     }
@@ -60,7 +71,7 @@ fun SignInVerifyScreenContent(/*phoneNumber: String*/) {
         Column {
             AppBar(hasBackIcon = true)
             Text(
-                text = "Код отправлен на номер\n$/*phoneNumber*/",
+                text = "Код отправлен на номер\n$phoneNumber",
                 color = Color(0xff808080),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -68,7 +79,7 @@ fun SignInVerifyScreenContent(/*phoneNumber: String*/) {
                 textAlign = TextAlign.Center
             )
             password = groupVerifySmsCodeItem()
-            var time by remember { mutableStateOf(70) }
+            var time by remember { mutableStateOf(119) }
             if (time > 0) {
                 LaunchedEffect(key1 = time, block = {
                     delay(1000)
@@ -90,8 +101,11 @@ fun SignInVerifyScreenContent(/*phoneNumber: String*/) {
                 )
             }
         }
+        val navigator = LocalNavigator.currentOrThrow
         Button(
-            onClick = { /*TODO*/ },
+            onClick = {
+                onEventDispatcher(Intent.CheckCode(password))
+            },
             modifier = Modifier
                 .padding(vertical = 20.dp, horizontal = 20.dp)
                 .fillMaxWidth()
@@ -102,6 +116,11 @@ fun SignInVerifyScreenContent(/*phoneNumber: String*/) {
         ) {
             Text(text = "Verify")
         }
+
+        if (uiState.homeScreen) {
+            navigator.replaceAll(HomeScreen())
+        }
+
     }
 }
 
@@ -180,13 +199,16 @@ fun AppBar(hasBackIcon: Boolean) {
             .padding(20.dp)
             .fillMaxWidth(),
     ) {
-        if (hasBackIcon) {
-            Icon(
-                Icons.Filled.ArrowBack,
-                contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-        }
+//        if (hasBackIcon) {
+//            val navigator = LocalNavigator.currentOrThrow
+//            Icon(
+//                Icons.Filled.ArrowBack,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .align(Alignment.CenterStart)
+//                    .clickable { navigator.pop() }
+//            )
+//        }
         Text(
             text = "Confirmation",
             modifier = Modifier.fillMaxWidth(),
@@ -200,6 +222,6 @@ fun AppBar(hasBackIcon: Boolean) {
 @Composable
 fun SignInVerifyScreenPreview() {
     NewComposeMobileBankingTheme {
-        SignInVerifyScreenContent()
+        SignInVerifyScreenContent("", UiState("", false)) {}
     }
 }

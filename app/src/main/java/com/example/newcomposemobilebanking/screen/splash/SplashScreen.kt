@@ -2,7 +2,6 @@ package com.example.newcomposemobilebanking.screen.splash
 
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -61,14 +60,11 @@ fun SplashScreenContent(
 
             LaunchedEffect(key1 = "", block = {
                 delay(1000)
-                if (uiState.isSignedIn) {
-                    Log.d("qqqqq", "2")
-                    navigator.replace(HomeScreen())
-                } else if (uiState.isFirstLaunch) {
-                    Log.d("qqqqq", "1")
+                if (uiState.isFirstLaunch) {
                     navigator.replace(IntroScreen())
+                } else if (uiState.isSignedIn) {
+                    navigator.replace(HomeScreen())
                 } else {
-                    Log.d("qqqqq", "3")
                     navigator.replace(SignInScreen())
                 }
             })
