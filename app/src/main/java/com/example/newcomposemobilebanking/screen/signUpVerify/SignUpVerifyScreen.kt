@@ -22,7 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.newcomposemobilebanking.screen.home.HomeScreen
 import com.example.newcomposemobilebanking.screen.signInVerify.AppBar
-import com.example.newcomposemobilebanking.screen.signInVerify.groupVerifySmsCodeItem
+import com.example.newcomposemobilebanking.screen.signInVerify.GroupVerifySmsCodeItem
 import com.example.newcomposemobilebanking.screen.signUpVerify.SignUpVerifyContract.*
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import com.example.newcomposemobilebanking.util.TimerContent
@@ -53,10 +53,8 @@ fun SignUpVerifyScreenContent(
     phoneNumber: String,
     uiState: UiState,
     onEventDispatcher: (Intent) -> Unit
-){
-    var password by remember {
-        mutableStateOf("")
-    }
+) {
+    val (password, setPassword) = remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +70,9 @@ fun SignUpVerifyScreenContent(
                     .padding(top = 40.dp),
                 textAlign = TextAlign.Center
             )
-            password = groupVerifySmsCodeItem()
+
+            GroupVerifySmsCodeItem(password, setPassword)
+
             var time by remember { mutableStateOf(119) }
             if (time > 0) {
                 LaunchedEffect(key1 = time, block = {

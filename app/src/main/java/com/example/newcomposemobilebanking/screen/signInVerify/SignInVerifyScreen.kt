@@ -60,9 +60,8 @@ fun SignInVerifyScreenContent(
     uiState: UiState,
     onEventDispatcher: (Intent) -> Unit
 ) {
-    var password by remember {
-        mutableStateOf("")
-    }
+    val (password, setPassword) = remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +77,9 @@ fun SignInVerifyScreenContent(
                     .padding(top = 40.dp),
                 textAlign = TextAlign.Center
             )
-            password = groupVerifySmsCodeItem()
+
+            GroupVerifySmsCodeItem(password, setPassword)
+
             var time by remember { mutableStateOf(119) }
             if (time > 0) {
                 LaunchedEffect(key1 = time, block = {
@@ -95,7 +96,7 @@ fun SignInVerifyScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            Log.d("qqqqq", "text clicked")
+//                            there will be resend logic
                         },
                     textAlign = TextAlign.Center
                 )
@@ -125,36 +126,40 @@ fun SignInVerifyScreenContent(
 }
 
 @Composable
-fun groupVerifySmsCodeItem(): String {
-    var password = ""
+fun GroupVerifySmsCodeItem(
+    password: String,
+    setPassword: (password: String) -> Unit
+) {
+    var newPassword = ""
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(vertical = 50.dp)
         ) {
-            password += verifySmsCodeItem(ImeAction.Next)
-            password += verifySmsCodeItem(ImeAction.Next)
-            password += verifySmsCodeItem(ImeAction.Next)
-            password += verifySmsCodeItem(ImeAction.Next)
-            password += verifySmsCodeItem(ImeAction.Next)
-            password += verifySmsCodeItem(ImeAction.Done)
+            newPassword += verifySmsCodeItem(ImeAction.Next)
+            newPassword += verifySmsCodeItem(ImeAction.Next)
+            newPassword += verifySmsCodeItem(ImeAction.Next)
+            newPassword += verifySmsCodeItem(ImeAction.Next)
+            newPassword += verifySmsCodeItem(ImeAction.Next)
+            newPassword += verifySmsCodeItem(ImeAction.Done)
+            setPassword(newPassword)
         }
     }
-    Log.d("qqqqq", password)
-    return password
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun verifySmsCodeItem(imeAction: ImeAction): String {
+fun verifySmsCodeItem(
+    imeAction: ImeAction
+): String {
     var password by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     Surface(modifier = Modifier.padding(5.dp)) {
         OutlinedTextField(
             modifier = Modifier
                 .width(42.dp)
-                .height(50.dp),
+                .height(55.dp),
             value = password,
             onValueChange = {
                 if (password.length < 1 && it.isDigitsOnly()) {
