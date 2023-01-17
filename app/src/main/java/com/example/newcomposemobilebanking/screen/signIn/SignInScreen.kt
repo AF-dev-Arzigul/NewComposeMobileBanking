@@ -65,8 +65,8 @@ fun SignInScreenContent(
     ) {
         val navigator = LocalNavigator.currentOrThrow
 
-        var phoneCheck by remember { mutableStateOf("") }
-        var passwordCheck by remember { mutableStateOf("") }
+        val (phone, setPhone) = remember { mutableStateOf("") }
+        val (password, setpassword) = remember { mutableStateOf("") }
 
         Column {
             Text(
@@ -86,7 +86,7 @@ fun SignInScreenContent(
                     .fillMaxWidth(),
             )
 
-            phoneCheck = phoneEditText()
+            PhoneEditText(phone, setPhone)
 
             Text(
                 text = "Password",
@@ -96,7 +96,7 @@ fun SignInScreenContent(
                     .fillMaxWidth(),
             )
 
-            passwordCheck = passwordEditText()
+            PasswordEditText(password, setpassword)
 
             Text(
                 modifier = Modifier.padding(20.dp),
@@ -127,7 +127,7 @@ fun SignInScreenContent(
 
         Button(
             onClick = {
-                onEventDispatcher(Intent.CheckUser("+998$phoneCheck", passwordCheck))
+                onEventDispatcher(Intent.CheckUser("+998$phone", password))
             },
             modifier = Modifier
                 .padding(vertical = 20.dp, horizontal = 20.dp)
@@ -135,13 +135,13 @@ fun SignInScreenContent(
                 .height(48.dp)
                 .align(Alignment.BottomEnd),
             shape = RoundedCornerShape(10.dp),
-            enabled = phoneCheck.isNotEmpty() && passwordCheck.isNotEmpty()
+            enabled = phone.isNotEmpty() && password.isNotEmpty()
         ) {
             Text(text = "Sign In")
         }
 
         if (uiState.openVerifyScreen) {
-            navigator.push(SignInVerifyScreen("+998$phoneCheck"))
+            navigator.push(SignInVerifyScreen("+998$phone"))
         }
 
     }
@@ -149,15 +149,17 @@ fun SignInScreenContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun phoneEditText(): String {
+fun PhoneEditText(
+    phone: String,
+    setPhone: (phone: String) -> Unit
+) {
     val phoneMask = " (##) - ### - ## - ##"
-    var phone by remember { mutableStateOf("") }
     Box {
         OutlinedTextField(
             value = phone,
             onValueChange = {
                 /*if (phone.length < 9)*/
-                phone = it
+                setPhone(it)
             },
             leadingIcon = {
                 Text(text = "+998", color = Color.Black)
@@ -179,18 +181,19 @@ fun phoneEditText(): String {
             visualTransformation = MaskVisualTransformation(phoneMask)
         )
     }
-    return phone
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun passwordEditText(): String {
-    var password by remember { mutableStateOf("") }
+fun PasswordEditText(
+    password: String,
+    setPassword: (password: String) -> Unit
+) {
     var toggle by remember { mutableStateOf(false) }
     Box {
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { setPassword(it) },
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp)
                 .fillMaxWidth(),
@@ -218,7 +221,6 @@ fun passwordEditText(): String {
             }
         )
     }
-    return password
 }
 
 @Preview

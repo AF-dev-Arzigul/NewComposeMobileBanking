@@ -1,7 +1,6 @@
 package com.example.newcomposemobilebanking.screen.signUp
 
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,12 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -26,10 +21,8 @@ import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.newcomposemobilebanking.R
-import com.example.newcomposemobilebanking.screen.signIn.SignInContract
-import com.example.newcomposemobilebanking.screen.signIn.passwordEditText
-import com.example.newcomposemobilebanking.screen.signIn.phoneEditText
+import com.example.newcomposemobilebanking.screen.signIn.PasswordEditText
+import com.example.newcomposemobilebanking.screen.signIn.PhoneEditText
 import com.example.newcomposemobilebanking.screen.signUp.SignUpContract.*
 import com.example.newcomposemobilebanking.screen.signUpVerify.SignUpVerifyScreen
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
@@ -64,12 +57,12 @@ fun SignUpScreenContent(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        var firstName by remember { mutableStateOf("") }
-        var lastName by remember { mutableStateOf("") }
-        var dateOfBirth by remember { mutableStateOf("") }
-        var phoneCheck by remember { mutableStateOf("") }
-        var passwordCheck by remember { mutableStateOf("") }
-        var gender by remember { mutableStateOf("") }
+        val (firstName, setFirstName) = remember { mutableStateOf("") }
+        val (lastName, setLastName) = remember { mutableStateOf("") }
+        val (birthday, setBirthday) = remember { mutableStateOf("") }
+        val (phone, setPhone) = remember { mutableStateOf("") }
+        val (password, setPassword) = remember { mutableStateOf("") }
+        val (gender, setGender) = remember { mutableStateOf("") }
 
         Column {
             Text(
@@ -89,7 +82,7 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            firstName = nameEditText()
+            NameEditText(firstName, setFirstName)
 
             Text(
                 text = "Last name",
@@ -99,8 +92,7 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            lastName = nameEditText()
-
+            NameEditText(lastName, setLastName)
 
             Text(
                 text = "Birthday",
@@ -110,7 +102,7 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            dateOfBirth = birthdayEditText()
+            BirthdayEditText(birthday, setBirthday)
 
             Text(
                 text = "Phone number",
@@ -120,7 +112,7 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            phoneCheck = phoneEditText()
+            PhoneEditText(phone, setPhone)
 
             Text(
                 text = "Password",
@@ -130,7 +122,7 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            passwordCheck = passwordEditText()
+            PasswordEditText(password, setPassword)
 
             Text(
                 text = "Gender",
@@ -140,13 +132,16 @@ fun SignUpScreenContent(
                     .fillMaxWidth(),
             )
 
-            gender = radioGroupUsage()
+            val kinds = listOf("male", "female")
+            Column {
+                GenderRadioGroup(mItems = kinds, gender, setGender)
+            }
 
         }
 
         Button(
             onClick = {
-                onEventDispatcher(Intent.CheckUser(firstName, lastName, dateOfBirth, gender, "+998$phoneCheck", passwordCheck))
+                onEventDispatcher(Intent.CheckUser(firstName, lastName, birthday, gender, "+998$phone", password))
             },
             modifier = Modifier
                 .padding(vertical = 20.dp, horizontal = 20.dp)
@@ -154,9 +149,9 @@ fun SignUpScreenContent(
                 .height(48.dp)
                 .align(Alignment.BottomEnd),
             shape = RoundedCornerShape(10.dp),
-            enabled = phoneCheck.isNotEmpty() && passwordCheck.isNotEmpty() &&
+            enabled = phone.isNotEmpty() && password.isNotEmpty() &&
                     firstName.isNotEmpty() && lastName.isNotEmpty() &&
-                    dateOfBirth.isNotEmpty() && gender.isNotEmpty()
+                    birthday.isNotEmpty() && gender.isNotEmpty()
         ) {
             Text(text = "Sign In")
         }
@@ -164,36 +159,18 @@ fun SignUpScreenContent(
         val navigator = LocalNavigator.currentOrThrow
 
         if (uiState.openVerifyScreen) {
-            navigator.push(SignUpVerifyScreen("+998$phoneCheck"))
+            navigator.push(SignUpVerifyScreen("+998$phone"))
         }
 
     }
 }
 
-@Composable
-fun radioGroupUsage(): String {
-    val kinds = listOf("male", "female")
-    val (selected, setSelected) = remember { mutableStateOf("") }
-    Column {
-        KindRadioGroup(
-            mItems = kinds,
-            selected,
-            setSelected
-        )
-//        Text(
-//            text = "Selected Option : $selected",
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier.fillMaxWidth(),
-//        )
-    }
-    return selected
-}
 
 @Composable
-fun KindRadioGroup(
+fun GenderRadioGroup(
     mItems: List<String>,
-    selected: String,
-    setSelected: (selected: String) -> Unit,
+    gender: String,
+    setGender: (gender: String) -> Unit,
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
@@ -205,9 +182,9 @@ fun KindRadioGroup(
                 ) {
                     RadioButton(
                         modifier = Modifier.padding(start = 20.dp),
-                        selected = selected == item,
+                        selected = gender == item,
                         onClick = {
-                            setSelected(item)
+                            setGender(item)
                         },
                         enabled = true,
                         colors = RadioButtonDefaults.colors(
@@ -223,12 +200,14 @@ fun KindRadioGroup(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun nameEditText(): String {
-    var name by remember { mutableStateOf("") }
+fun NameEditText(
+    name: String,
+    setName: (selected: String) -> Unit
+) {
     Box {
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { setName(it) },
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp)
                 .fillMaxWidth(),
@@ -243,18 +222,19 @@ fun nameEditText(): String {
             /*isError = false,*/
         )
     }
-    return name
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun birthdayEditText(): String {
+fun BirthdayEditText(
+    birthday: String,
+    setBirthday: (birthday: String) -> Unit
+) {
     val dayMask = "##/##/####"
-    var name by remember { mutableStateOf("") }
     Box {
         OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
+            value = birthday,
+            onValueChange = { setBirthday(it) },
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp)
                 .fillMaxWidth(),
@@ -273,7 +253,6 @@ fun birthdayEditText(): String {
             /*isError = false,*/
         )
     }
-    return name
 }
 
 
