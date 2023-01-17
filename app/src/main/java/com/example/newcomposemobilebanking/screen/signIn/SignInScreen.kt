@@ -1,7 +1,9 @@
 package com.example.newcomposemobilebanking.screen.signIn
 
 
-import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,6 +31,8 @@ import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import com.example.newcomposemobilebanking.util.MaskVisualTransformation
 import com.example.newcomposemobilebanking.screen.signIn.SignInContract.*
 import com.example.newcomposemobilebanking.screen.signInVerify.SignInVerifyScreen
+import com.example.newcomposemobilebanking.screen.signUp.SignUpScreen
+
 
 /*
  * Arzigul Nazarbaeva
@@ -50,11 +55,16 @@ class SignInScreen : AndroidScreen() {
 
 @Composable
 fun SignInScreenContent(
-    uiSate: UiState,
+    uiState: UiState,
     onEventDispatcher: (Intent) -> Unit
 ) {
-    val navigator = LocalNavigator.currentOrThrow
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        val navigator = LocalNavigator.currentOrThrow
+
         var phoneCheck by remember { mutableStateOf("") }
         var passwordCheck by remember { mutableStateOf("") }
 
@@ -72,7 +82,7 @@ fun SignInScreenContent(
                 text = "Phone number",
                 fontSize = 16.sp,
                 modifier = Modifier
-                    .padding(start = 25.dp, end = 20.dp, bottom = 5.dp)
+                    .padding(start = 25.dp, end = 20.dp, bottom = 5.dp, top = 20.dp)
                     .fillMaxWidth(),
             )
 
@@ -94,6 +104,25 @@ fun SignInScreenContent(
                 color = Color.Blue,
             )
 
+            Row {
+                Text(
+                    modifier = Modifier.padding(start = 20.dp, top = 20.dp),
+                    text = "If you don't have an account, ",
+                    color = Color.Black,
+                )
+
+                Text(
+                    modifier = Modifier
+                        .padding(end = 20.dp, top = 20.dp)
+                        .clickable {
+                            navigator.push(SignUpScreen())
+                        },
+                    text = "register",
+                    color = Color.Blue,
+                )
+
+            }
+
         }
 
         Button(
@@ -111,10 +140,8 @@ fun SignInScreenContent(
             Text(text = "Sign In")
         }
 
-        if (uiSate.openVerifyScreen) {
+        if (uiState.openVerifyScreen) {
             navigator.push(SignInVerifyScreen("+998$phoneCheck"))
-        } else {
-            Log.d("qqqqq", "Something went wrong")
         }
 
     }
@@ -133,7 +160,7 @@ fun phoneEditText(): String {
                 phone = it
             },
             leadingIcon = {
-                Text(text = "+998")
+                Text(text = "+998", color = Color.Black)
             },
             textStyle = TextStyle(color = Color.Black),
             modifier = Modifier
@@ -144,7 +171,7 @@ fun phoneEditText(): String {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFFF4F4F4),
-                focusedIndicatorColor = Color.Transparent,
+//                focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
             shape = RoundedCornerShape(8.dp),
@@ -169,7 +196,7 @@ fun passwordEditText(): String {
                 .fillMaxWidth(),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFFF4F4F4),
-                focusedIndicatorColor = Color.Transparent,
+//                focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
 //            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
@@ -190,7 +217,6 @@ fun passwordEditText(): String {
                 }
             }
         )
-
     }
     return password
 }
