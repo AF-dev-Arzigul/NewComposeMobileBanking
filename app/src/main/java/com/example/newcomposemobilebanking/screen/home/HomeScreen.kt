@@ -12,8 +12,7 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +27,8 @@ import cafe.adriel.voyager.hilt.getViewModel
 import com.example.newcomposemobilebanking.R
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
 import com.example.newcomposemobilebanking.screen.home.HomeScreenContract.*
+import com.example.newcomposemobilebanking.ui.theme.MyTypography
+import com.example.newcomposemobilebanking.ui.theme.Theme
 
 
 /*
@@ -46,17 +47,27 @@ class HomeScreen : AndroidScreen() {
             HomeScreenContent(uiState, viewModel::onEventDispatcher)
         }
     }
+
 }
+
+val list = arrayListOf(
+    R.drawable.card,
+    R.drawable.card,
+    R.drawable.card
+)
 
 @Composable
 fun HomeScreenContent(
     uiState: UiState,
     onEventDispatcher: (Intent) -> Unit
 ) {
+    val (theme, setTheme) = remember { mutableStateOf("") }
+    val (typography, setTypography) = remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xffEEEFF4))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
 
@@ -92,7 +103,8 @@ fun HomeScreenContent(
                     }
                     Text(
                         text = "Add Card",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -119,7 +131,8 @@ fun HomeScreenContent(
                     }
                     Text(
                         text = "Pay",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -146,7 +159,8 @@ fun HomeScreenContent(
                     }
                     Text(
                         text = "Send",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -173,19 +187,87 @@ fun HomeScreenContent(
                     }
                     Text(
                         text = "More",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        ) {
+            Button(onClick = {
+                when (MyTypography.typography.value) {
+                    "small" -> {
+                        MyTypography.typography.value = "medium"
+                    }
+                    "medium" -> {
+                        MyTypography.typography.value = "large"
+                    }
+                    else -> {
+                        MyTypography.typography.value = "small"
+                    }
+                }
+            }) {
+                Text(text = MyTypography.typography.value)
+            }
+
+            Button(onClick = {
+                when (Theme.themeMode.value) {
+                    "dark" -> {
+                        Theme.themeMode.value = "light"
+                    }
+                    "light" -> {
+                        Theme.themeMode.value = "green"
+                    }
+                    "green" -> {
+                        Theme.themeMode.value = "dark"
+                    }
+                    else -> {
+                        Theme.themeMode.value = "dark"
+                    }
+                }
+            }) {
+                Text(text = Theme.themeMode.value)
             }
         }
     }
 }
 
-val list = arrayListOf(
-    R.drawable.card,
-    R.drawable.card,
-    R.drawable.card
-)
+@Composable
+fun ThemeDropDownMenu(
+    theme: String,
+    setTheme: (theme: String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = {
+            expanded = true
+        }) {
+        Text(text = "Salom1")
+        Text(text = "Salom2")
+        Text(text = "Salom3")
+    }
+}
+
+@Composable
+fun TypographyDropDownMenu(
+    size: String,
+    setSize: (size: String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = {
+            expanded = false
+        }) {
+
+    }
+}
 
 @Composable
 fun HomeActionBar() {

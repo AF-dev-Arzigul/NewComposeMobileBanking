@@ -2,33 +2,37 @@ package com.example.newcomposemobilebanking.screen.splash
 
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.newcomposemobilebanking.model.repository.AuthRepository
-import com.example.newcomposemobilebanking.screen.splash.SplashContract.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.Container
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SplashViewModelImpl @Inject constructor(
-    authRepository: AuthRepository
-) : SplashViewModel, ViewModel(), SplashView {
+    private val authRepository: AuthRepository,
+    private val navigation: SplashNavigationImpl
+) : SplashViewModel, ViewModel() {
 
-    override val uiState = MutableStateFlow(UiState(isFirstLaunch = true, isSignedIn = true))
-
-    init {
-        reduce { it.copy(isFirstLaunch = authRepository.isFirstLaunch()) }
-        reduce { it.copy(isSignedIn = authRepository.isSignedIn()) }
-    }
-
-    override fun onEventDispatcher(intent: Intent) {
-        when (intent) {
-            is Intent.OpenNext -> {}
+    override fun launch() {
+        viewModelScope.launch {
+            delay(1000)
+            if (authRepository.isFirstLaunch()) {
+               navigation.navigateToIntroScreen()
+            } else if (authRepository.isSignedIn()) {
+                navigation.navigateToHomeScreen()
+            } else {
+                navigation.navigateToSignInScreen()
+            }
         }
     }
 
-    private fun reduce(block: (oldState: UiState) -> UiState) {
-        val old = uiState.value
-        uiState.value = block(old)
-    }
+    override fun onEventDispatcher(intent: Nothing) {}
+
+    override val container: Container<Nothing, Nothing>
+        get() = TODO("Not yet implemented")
 
 }

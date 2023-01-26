@@ -10,11 +10,12 @@ import javax.inject.Singleton
 class AppNavigationManager @Inject constructor() : AppNavigator, NavigationHandler {
     override val navigationFlow = MutableSharedFlow<Navigator.() -> Unit>()
 
-    private suspend fun navigate(block: Navigator.() -> Unit) {
-        navigationFlow.emit(block)
-    }
+    private suspend fun navigate(block: Navigator.() -> Unit) { navigationFlow.emit(block) }
 
     override suspend fun back() = navigate { pop() }
-    override suspend fun navigationTo(screen: Screen) = navigate { push(screen)}
+
+    override suspend fun navigationTo(screen: Screen) = navigate { push(screen) }
+
+    override suspend fun replaceNavigation(screen: Screen) = navigate { replace(screen) }
 }
 

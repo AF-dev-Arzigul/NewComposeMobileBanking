@@ -1,6 +1,7 @@
 package com.example.newcomposemobilebanking.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -14,7 +15,7 @@ val Typography = Typography(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
+)
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -31,4 +32,28 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+
+)
+
+val SmallTypography =Typography(
+    bodyLarge = TextStyle(
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        fontSize = 16.sp,
+    )
+)
+
+val MediumTypography =Typography(
+    bodyLarge = TextStyle(
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        fontSize = 22.sp,
+    )
+)
+val LargeTypography =Typography(
+    bodyLarge = TextStyle(
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        fontSize = 24.sp,
+    )
 )

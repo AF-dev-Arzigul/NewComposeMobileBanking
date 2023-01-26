@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.newcomposemobilebanking.screen.splash.SplashContract.*
@@ -21,13 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.newcomposemobilebanking.R
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.newcomposemobilebanking.screen.home.HomeScreen
-import com.example.newcomposemobilebanking.screen.intro.IntroScreen
-import com.example.newcomposemobilebanking.screen.signIn.SignInScreen
 import com.example.newcomposemobilebanking.ui.theme.NewComposeMobileBankingTheme
-import kotlinx.coroutines.delay
 
 
 @SuppressLint("CustomSplashScreen")
@@ -37,19 +29,15 @@ class SplashScreen : AndroidScreen() {
     override fun Content() {
         NewComposeMobileBankingTheme {
             val viewModel: SplashViewModelImpl = getViewModel()
-            val uiState = viewModel.uiState.collectAsState().value
-            SplashScreenContent(uiState, viewModel::onEventDispatcher)
+            viewModel.launch()
+            SplashScreenContent()
         }
     }
 
 }
 
 @Composable
-fun SplashScreenContent(
-    uiState: UiState,
-    eventDispatcher: (Intent) -> Unit
-) {
-    val navigator = LocalNavigator.currentOrThrow
+fun SplashScreenContent() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,17 +45,6 @@ fun SplashScreenContent(
     ) {
         Box(modifier = Modifier.align(Alignment.Center)) {
             GitaIcon(Color.White)
-
-            LaunchedEffect(key1 = "", block = {
-                delay(1000)
-                if (uiState.isFirstLaunch) {
-                    navigator.replace(IntroScreen())
-                } else if (uiState.isSignedIn) {
-                    navigator.replace(HomeScreen())
-                } else {
-                    navigator.replace(SignInScreen())
-                }
-            })
         }
     }
 }
@@ -97,7 +74,5 @@ fun GitaIcon(color: Color) {
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-    NewComposeMobileBankingTheme {
-        SplashScreenContent(UiState(isFirstLaunch = false, isSignedIn = false)) {}
-    }
+    NewComposeMobileBankingTheme {}
 }
